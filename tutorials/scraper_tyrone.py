@@ -3,6 +3,39 @@ import bs4
 from bs4 import BeautifulSoup
 import pprint
 from dataclasses import dataclass, field
+import json
+import os
+
+class JsonTableParser:
+    """ """
+    @staticmethod
+    def parse_json_from_file(file):
+        #if an absolute filepath was not given, assume it is relative to this location
+        if(not os.path.isabs(file)):
+            file = os.path.join(os.path.dirname(os.path.abspath(__file__)), file)
+        try:
+            with open(file) as configJson:
+                data = json.load(configJson)
+
+            return data        
+        except Exception as ex:
+            print("error")
+            print(ex)        
+
+class TableManager:
+    """ """
+    def __init__(self, configFile):
+        self.url_to_table_mapping = {}
+        self.configFile = configFile
+        self.config = JsonTableParser.parse_json_from_file(self.configFile)
+        if(self.config is None):
+            print("")
+            raise Exception(f"TableManager::__init__() => Error: failed to load json data from {self.configFile}")
+
+        self.load_tables()
+
+    def load_tables(self):
+        """ """
 
 class ElementDefinition:
     """ 
@@ -168,12 +201,6 @@ class TableDefinition(ElementDefinition):
                 
 
 def resolve_table():
-    pp = pprint.PrettyPrinter(indent=2)
-
-    #lst = ElementDefinition('a')
-    #lst2 = Table('a', 'name', [Row('b', 'key', [DataCell('c', 'type', 'data_name', ['-'], 'data')])])
-    #print(lst2.__dict__)
-    
     celDef = DataCellDefinition([("span", None)], ['-'])
     dataDesc = {
         "POS":"position",
@@ -206,9 +233,14 @@ def resolve_table():
 
     data = tableDef.resolve(soup)
 
-    pp.pprint(data)
 
 def main():
+    pp = pprint.PrettyPrinter(indent=1)
+
+    manager = TableManager("config.json")
+    
+    pp.pprint(manager.config)
+    return
     resolve_table()
 
 if __name__ == "__main__":
