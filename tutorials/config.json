@@ -1,42 +1,49 @@
-{
-    "url": "http://www.espn.com/soccer/team/squad/_/id/359/league/ENG.1",
-    "table_definition":{
-        "root_path": [
-            ["section", {"class": "Table2__responsiveTable Table2__table-outer-wrap --align-headers goalkeepers"}],
-            ["table", {"class": "Table2__table__wrapper"}]
-        ],
-        "table_name": "goalkeepers",
-        "row_definition": {
-            "key_name": "name",
-            "root_path": [["tr", {"class": "Table2__tr Table2__tr--sm Table2__even"}]],
-            "column_definition": {
-                "root_path": [["td", null]],
-                "data_description": {
-                    "POS":"position",
-                    "NO":"number",
-                    "NAME":"name",
-                    "AGE":"age",
-                    "APP":"appearances",
-                    "SUBIN":"substitutions" ,
-                    "S":"saves",
-                    "GC":"goals_against",
-                    "A":"assists",
-                    "FC":"fouls",
-                    "FA":"fouls_against",
-                    "YC":"yellow_cards",
-                    "RC":"red_cards"
-                },
-                "data_cell_definition": {
-                    "root_path": [["span", null]],
-                    "null_characters": ["-"]
+[
+    {
+        "url": "http://www.espn.com/soccer/team/squad/_/id/359/league/ENG.1",
+        "tables": 
+        [
+            {
+                "table_definition":{
+                    "root_path": [
+                        ["section", {"class": "Table2__responsiveTable Table2__table-outer-wrap --align-headers goalkeepers"}],
+                        ["table", {"class": "Table2__table__wrapper"}]
+                    ],
+                    "table_name": "goalkeepers",
+                    "row_definition": {
+                        "key_name": "name",
+                        "root_path": [["tr", {"class": "Table2__tr Table2__tr--sm Table2__even"}]],
+                        "column_definition": {
+                            "root_path": [["td", null]],
+                            "data_description": {
+                                "POS":"position",
+                                "NO":"number",
+                                "NAME":"name",
+                                "AGE":"age",
+                                "APP":"appearances",
+                                "SUBIN":"substitutions" ,
+                                "S":"saves",
+                                "GC":"goals_against",
+                                "A":"assists",
+                                "FC":"fouls",
+                                "FA":"fouls_against",
+                                "YC":"yellow_cards",
+                                "RC":"red_cards"
+                            },
+                            "data_cell_definition": {
+                                "root_path": [["span", null]],
+                                "null_characters": ["-"]
+                            }
+                        }
+                    },
+                    "header_definition": {
+                        "data_cell_definition": {
+                            "root_path": [["span", null],["a", null]],
+                            "null_characters": null
+                        }
+                    }
                 }
             }
-        },
-        "header_definition": {
-            "data_cell_definition": {
-                "root_path": [["span", null],["a", null]],
-                "null_characters": null
-            }
-        }
+        ]
     }
-}
+]

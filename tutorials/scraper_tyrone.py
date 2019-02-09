@@ -29,13 +29,14 @@ class TableManager:
         self.configFile = configFile
         self.config = JsonTableParser.parse_json_from_file(self.configFile)
         if(self.config is None):
-            print("")
             raise Exception(f"TableManager::__init__() => Error: failed to load json data from {self.configFile}")
 
         self.load_tables()
 
     def load_tables(self):
         """ """
+        for conf in self.config:
+            url = conf["url"]
 
 class ElementDefinition:
     """ 
@@ -200,38 +201,38 @@ class TableDefinition(ElementDefinition):
 
                 
 
-def resolve_table():
-    celDef = DataCellDefinition([("span", None)], ['-'])
-    dataDesc = {
-        "POS":"position",
-        "NO":"number",
-        "NAME":"name",
-        "AGE":"age",
-        "APP":"appearances",
-        "SUBIN":"substitutions" ,
-        "S":"saves",
-        "GC":"goals_against",
-        "A":"assists",
-        "FC":"fouls",
-        "FA":"fouls_against",
-        "YC":"yellow_cards",
-        "RC":"red_cards"
-    }
-    colDef = ColumnDefinition([("td", None)], dataDesc, celDef)
-    rowDef = RowDefinition([("tr", {"class": "Table2__tr Table2__tr--sm Table2__even"})], "name", colDef) 
-    headerCelDef = DataCellDefinition([("span", None),("a", None)], None)
-    headDef = HeaderDefinition([("thead", None), ("tr", None)], headerCelDef)
-    tableDef = TableDefinition(
-        [("section",{"class": "Table2__responsiveTable Table2__table-outer-wrap --align-headers goalkeepers"}),
-        ("table", {"class": "Table2__table__wrapper"})],
-        "goalkeepers", rowDef, headDef
-    )
-
-    url = 'http://www.espn.com/soccer/team/squad/_/id/359/league/ENG.1'
-    page = requests.get(url)
-    soup = BeautifulSoup(page.text, 'html.parser')
-
-    data = tableDef.resolve(soup)
+#def resolve_table():
+#    celDef = DataCellDefinition([("span", None)], ['-'])
+#    dataDesc = {
+#        "POS":"position",
+#        "NO":"number",
+#        "NAME":"name",
+#        "AGE":"age",
+#        "APP":"appearances",
+#        "SUBIN":"substitutions" ,
+#        "S":"saves",
+#        "GC":"goals_against",
+#        "A":"assists",
+#        "FC":"fouls",
+#        "FA":"fouls_against",
+#        "YC":"yellow_cards",
+#        "RC":"red_cards"
+#    }
+#    colDef = ColumnDefinition([("td", None)], dataDesc, celDef)
+#    rowDef = RowDefinition([("tr", {"class": "Table2__tr Table2__tr--sm Table2__even"})], "name", colDef) 
+#    headerCelDef = DataCellDefinition([("span", None),("a", None)], None)
+#    headDef = HeaderDefinition([("thead", None), ("tr", None)], headerCelDef)
+#    tableDef = TableDefinition(
+#        [("section",{"class": "Table2__responsiveTable Table2__table-outer-wrap --align-headers goalkeepers"}),
+#        ("table", {"class": "Table2__table__wrapper"})],
+#        "goalkeepers", rowDef, headDef
+#    )
+#
+#    url = 'http://www.espn.com/soccer/team/squad/_/id/359/league/ENG.1'
+#    page = requests.get(url)
+#    soup = BeautifulSoup(page.text, 'html.parser')
+#
+#    data = tableDef.resolve(soup)
 
 
 def main():
