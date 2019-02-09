@@ -4,6 +4,41 @@ from bs4 import BeautifulSoup
 import pprint
 from dataclasses import dataclass, field
 
+##
+# This example was attempting to grab the headers from the table itself.
+# this would give us the order that the data comes in, then instead 
+# of having data_description (in ColumnDefinition) be simply the array of values, hardcoded
+# to what the table should look like, we could have it be a dictionary of expected value to 
+# proper name mapping, then when we scrape the header, we see order the data comes in.
+# for example if we had a header
+# -   P   G   F
+# 
+# and a mapping  for data_description
+# { 'P' : 'player',
+#   'G' : 'goals',
+#   'F' : 'fouls }
+#
+# Then by pulling out the headers into an array [ '-', 'P', 'G', 'F']
+#
+# We see that column 0 has no relevance to our data, and we know to skip it.
+# 
+# Conversely, if at some point - P G F became G P F -, it wouldn't matter. Scraping the header
+# would see the order of the data, and the mapping would tell us if we add the data or not.
+#
+# The reason that this failed is because there were instances the header cells were defined differently
+#
+# This may not prevent this approach entirely, but each header would need to have it's own definition
+# Which may be required in the future anyways
+# Example that failed:
+# <thead>
+#  <th><span><a>Header1</a></span><th>
+#  <th><span>GoodHeader</span></th>
+# </thead>
+# 
+# Stripped header comes out 
+# 
+##
+
 class ElementDefinition:
     """ 
         ElementDefinition defines an html element and how to find it in some set of html
@@ -56,20 +91,18 @@ class ElementDefinition:
         try:
             ret_val = data
             for root in self.root_path:
-                if isinstance(ret_val, bs4.element.Tag):
+                # if there is only one element in our find all, use find instead
+                if(len(ret_val) == 1):
+                    if root[1]:
+                        ret_val = ret_val.find(root[0], root[1])
+                    else:
+                        ret_val = ret_val.find(root[0])
+                else:
                     if root[1]:
                         ret_val = ret_val.find_all(root[0], root[1])
                     else:
                         ret_val = ret_val.find_all(root[0])
-                elif isinstance(ret_val, bs4.element.ResultSet):
-                    resSet = bs4.element.ResultSet(ret_val.source)
-                    for res in ret_val:
-                        if root[1]:
-                            resSet += res.find_all(root[0], root[1])
-                        else:
-                            resSet += res.find_all(root[0])
-                    
-                    ret_val = resSet
+
 
             return ret_val
         except Exception as e:
@@ -117,7 +150,7 @@ class TableDefinition(ElementDefinition):
         try:
             header = self.header_definition.find_all(data)
             headers = celDef.find_all(header)
-            retHeaders = [x.text.upper() for x in headers]
+            retHeaders = [x.text for x in headers]
             return retHeaders
         except Exception as e:
             print("error")
@@ -144,21 +177,19 @@ class TableDefinition(ElementDefinition):
                     for row in rows:
                         cols = colDef.find_all(row)
                         for idx, col in enumerate(cols):
-                            if idx >= len(headers):
-                                break
+
                             #TODO: dataDesc should also include the data type so we can take advantage of the nullable characters in celDef
-                            if headers[idx] is None or headers[idx] == '':
+                            if dataDesc[idx] is None:
                                 continue
                             
                             cell = celDef.find_inner(col)
-                            key = dataDesc[headers[idx]]
                             
                             # if this is our key, index the table as a row
-                            if key == rowDef.key_name:
+                            if dataDesc[idx] == rowDef.key_name:
                                 tableData[cell] = rowData
                             #else just populate the row
                             else:
-                                rowData[key] = cell
+                                rowData[dataDesc[idx]] = cell
 
             
             return tableData
@@ -192,7 +223,7 @@ def resolve_table():
     }
     colDef = ColumnDefinition([("td", None)], dataDesc, celDef)
     rowDef = RowDefinition([("tr", {"class": "Table2__tr Table2__tr--sm Table2__even"})], "name", colDef) 
-    headerCelDef = DataCellDefinition([("span", None),("a", None)], None)
+    headerCelDef = DataCellDefinition([("span", None)], None)
     headDef = HeaderDefinition([("thead", None), ("tr", None)], headerCelDef)
     tableDef = TableDefinition(
         [("section",{"class": "Table2__responsiveTable Table2__table-outer-wrap --align-headers goalkeepers"}),
@@ -206,7 +237,61 @@ def resolve_table():
 
     data = tableDef.resolve(soup)
 
-    pp.pprint(data)
+    print(tableDef.__dict__)
+    print(rowDef.__dict__)
+    print(colDef.__dict__)
+    print(celDef.__dict__)
+
+    return
+    goaltenders = soup.find("section", {"class": "Table2__responsiveTable Table2__table-outer-wrap --align-headers goalkeepers"})
+    table = goaltenders.find("table", {"class": "Table2__table__wrapper"})
+    rows = table.find_all("tr", {"class": "Table2__tr Table2__tr--sm Table2__even"})
+
+    data = [
+        "position",
+        "number",
+        "name",
+        "age",
+        "appearances",
+        "substitutions" ,
+        "saves",
+        "goals_against",
+        "assists",
+        "fouls",
+        "fouls_against",
+        "yellow_cards",
+        "red_cards",
+        None
+    ] 
+
+    cleaned = { }
+
+    for row in rows:
+        columns = row.find_all("td")
+        data_row = {}
+
+        for idx, col in enumerate(columns):
+            data_name = data[idx]
+
+            if(idx >= len(data)):
+                break
+
+            if data_name is None:
+                continue
+            
+            data_cell = col.find("span").text
+
+            if(data[idx] == "name"):
+                cleaned[data_cell] = data_row
+            else:
+                data_row[data_name] = data_cell
+                
+    pp.pprint(cleaned)
+                        
+    #for row in rows:
+    #    columns = rows.find_all("td")
+    #    print(columns)
+
 
 def main():
     resolve_table()
