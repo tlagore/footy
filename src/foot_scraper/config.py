@@ -28,7 +28,9 @@ class Config:
                                         "RC":"red_cards"
                                     },
                                     "player_data":[
-                                        ["td", {"class" : "Table2__td"}]]
+                                        ["td", {"class" : "Table2__td"}], ["span", {"class" : ""}]],
+                                    "player_details":[
+                                        ["a", {"href" : "http://www.espnfc.com/player/"}]]
                                     }
                                 }
                             }

@@ -3,6 +3,7 @@ import requests
 from bs4 import BeautifulSoup, SoupStrainer
 from TableManager import TableManager
 from config import Config
+import re
 
 
 def main():
@@ -23,22 +24,26 @@ def getTableData(tables, soup):
         colDef = rowDef["column_definition"]
         playerData = colDef["player_data"]
         dataDesc = colDef["data_description"]
+        playerDetails = colDef["player_details"]
        
-        # tableData = parseData(rootPath, soup)
-        players = parseData(playerData, soup)
-        # # player = players.pop(0)
-        # print(players.prettify())
-        for player in players:
-            print(player.text)
+        # players = parseData(playerData, soup)
+        for key, value in playerDetails:
+            playersNames = parsePlayerNames(key, value, soup)
+
+        # Get Players stats here
+        playerStats = soup.find_all(playerData)
+
+        for player in playersNames:
+            rowDef.update({player.text:""})
+
+        for key, value in rowDef.items():
+            print(key,"=>", value)
        
 
-def parseData(path, soup):
-    cleanedData = soup.find_all(path)
-    # for key,value in path:
-    #     if(value is not None):
-    #         cleanedData = soup.find_all(key, attrs={value})
-    #     else:
-    #         cleanedData = soup.find_all(key)
+def parsePlayerNames(key, value, soup):
+
+    for k,v in value.items():
+        cleanedData = soup.find_all(key, {k : re.compile(v)})
 
     return cleanedData
 
