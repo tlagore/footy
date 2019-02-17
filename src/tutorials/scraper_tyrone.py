@@ -20,7 +20,7 @@ class JsonTableParser:
             return data        
         except Exception as ex:
             print("error")
-            print(ex)        
+            print(ex)
 
 class TableManager:
     """ """
