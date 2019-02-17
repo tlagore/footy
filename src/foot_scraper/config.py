@@ -27,8 +27,41 @@ class Config:
                                         "YC":"yellow_cards",
                                         "RC":"red_cards"
                                     },
-                                    "player_data":[
-                                        ["td", {"class" : "Table2__td"}], ["span", {"class" : ""}]],
+                                    "specific_table":[
+                                        ["section", {"class": "Table2__responsiveTable Table2__table-outer-wrap --align-headers goalkeepers"}]],
+                                    "player_data":[ 
+                                        ["span", "class"]],
+                                    "player_details":[
+                                        ["a", {"href" : "http://www.espnfc.com/player/"}]]
+                                    }
+                                }
+                            }
+                        },
+                        {
+                        "table_definition":{
+                            "table_name": "players",
+                            "row_definition": {
+                                "key_name": "name",
+                                "column_definition": {
+                                    "data_description": {
+                                        "POS":"position",
+                                        "NO":"number",
+                                        "NAME":"name",
+                                        "AGE":"age",
+                                        "APP":"appearances",
+                                        "SUBIN":"substitutions" ,
+                                        "S":"saves",
+                                        "GC":"goals_against",
+                                        "A":"assists",
+                                        "FC":"fouls",
+                                        "FA":"fouls_against",
+                                        "YC":"yellow_cards",
+                                        "RC":"red_cards"
+                                    },
+                                    "specific_table":[
+                                        ["section", {"class": "Table2__responsiveTable Table2__table-outer-wrap --align-headers outfield players"}]],
+                                    "player_data":[ 
+                                        ["span", "class"]],
                                     "player_details":[
                                         ["a", {"href" : "http://www.espnfc.com/player/"}]]
                                     }
