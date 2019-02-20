@@ -1,11 +1,11 @@
-from azure.keyvault import KeyVaultClient, KeyVaultAuthentication
+from azure.keyvault import KeyVaultClient, KeyVaultAuthentication, KeyVaultId
 from azure.common.credentials import ServicePrincipalCredentials
 
 def auth_callback(server, resource, scope):
     credentials = ServicePrincipalCredentials(
         client_id = '',
         secret = '',
-        tenant = '',
+        tenant = '72f988bf-86f1-41af-91ab-2d7cd011db47',
         resource = 'https://vault.azure.net'
     )
 
@@ -14,4 +14,4 @@ def auth_callback(server, resource, scope):
 
 client = KeyVaultClient(KeyVaultAuthentication(auth_callback))
 
-secret_bundle = client.get_key('https://footkv.vault.azure.net/', 'MongoDBPass', 'f7f11699aeef4e20b92fed20ca9ca0d8')
+secret_bundle = client.get_key('https://footkv.vault.azure.net/', 'MongoDBPass', KeyVaultId.version_none)
