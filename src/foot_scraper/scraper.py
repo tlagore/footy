@@ -19,10 +19,12 @@ def main():
 def getTableData(page, config):
         goaliesTableLoc=int(config['goalie_table_loc'])
         playersTableLoc=int(config['player_table_loc'])
+        headerLoc=int(config['header_loc'])
+        footerLoc=int(config['footer_loc']) #seems to skip footer row at 1
         soup = BeautifulSoup(page.text,'lxml')
         tables = soup.find_all('table')
 
-        dfs=pd.read_html(str(tables), header=0)
+        dfs=pd.read_html(str(tables), header=headerLoc, skiprows=footerLoc)
         
         goaliesTable = dfs[goaliesTableLoc].to_json(orient='records')
         playersTable = dfs[playersTableLoc].to_json(orient='records')
