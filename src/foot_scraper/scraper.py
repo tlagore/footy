@@ -1,11 +1,7 @@
 # pylint: disable=no-name-in-module,import-error
-import requests
-import pandas as pd
-import html5lib
+import requests, json, jsbeautifier, html5lib, pandas as pd
 from bs4 import BeautifulSoup
 from config import Config
-import json
-import jsbeautifier
 
 def main():
     configs = Config.getConfigs()
@@ -20,11 +16,13 @@ def getTableData(page, config):
         goaliesTableLoc=int(config['goalie_table_loc'])
         playersTableLoc=int(config['player_table_loc'])
         headerLoc=int(config['header_loc'])
-        footerLoc=int(config['footer_loc']) #seems to skip footer row at 1
+        tagsToRemove=config['tags_to_remove']
         soup = BeautifulSoup(page.text,'lxml')
+
+        removeTags(soup, tagsToRemove)
         tables = soup.find_all('table')
 
-        dfs=pd.read_html(str(tables), header=headerLoc, skiprows=footerLoc)
+        dfs=pd.read_html(str(tables), header=headerLoc)
         
         goaliesTable = dfs[goaliesTableLoc].to_json(orient='records')
         playersTable = dfs[playersTableLoc].to_json(orient='records')
@@ -34,6 +32,12 @@ def getTableData(page, config):
 
 def printFormatedJsonTable(table):
     print(jsbeautifier.beautify(table))
+
+def removeTags(soup, tagsToRemove):
+        for k,v in tagsToRemove:
+                tags = soup.find_all(k, v)
+                for tag in tags:
+                        tag.decompose()
 
 if __name__ == "__main__":
     main()
