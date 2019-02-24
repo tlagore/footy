@@ -1,5 +1,5 @@
 # pylint: disable=no-name-in-module,import-error
-import requests, json, jsbeautifier, html5lib, pandas as pd
+import requests, json, jsbeautifier, html5lib, pandas as pd, re
 from bs4 import BeautifulSoup
 from config import Config
 
@@ -20,6 +20,7 @@ def getTableData(page, config):
         soup = BeautifulSoup(page.text,'lxml')
 
         removeTags(soup, tagsToRemove)
+        
         tables = soup.find_all('table')
 
         dfs=pd.read_html(str(tables), header=headerLoc)
@@ -35,9 +36,10 @@ def printFormatedJsonTable(table):
 
 def removeTags(soup, tagsToRemove):
         for k,v in tagsToRemove:
-                tags = soup.find_all(k, v)
+                tags = soup.find_all(k, class_=re.compile(v))
                 for tag in tags:
                         tag.decompose()
+
 
 if __name__ == "__main__":
     main()
