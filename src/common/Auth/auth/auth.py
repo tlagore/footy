@@ -1,6 +1,3 @@
-from azure.keyvault import KeyVaultClient, KeyVaultAuthentication, KeyVaultId
-from azure.common.credentials import ServicePrincipalCredentials
-from msrestazure.azure_active_directory import MSIAuthentication
 import requests
 import os
 import adal
@@ -8,11 +5,7 @@ from datetime import datetime
 import json
 import config
 
-# # client_id = "2795bb93-a063-4c9e-a7cb-ec9a66f0efc6" #also application id
-# # tenant_id = "601ec5fe-3c4e-4ba2-b15c-3ff7ad272a7e"
-
 class KeyManager:
-    
     def __init__(self, client_id=config.CLIENT_ID, tenant_id=config.TENANT_ID, 
             kv_uri=config.KV_URI, key_file=config.PKEY_FILE, thumbprint=config.THUMBPRINT):
         """KeyManager handles getting keys from keyvault"""
@@ -76,7 +69,6 @@ class KeyManager:
         if(resp.status_code != 200):
             print("Error getting secret")
             print(f"Server returned status code: {resp.status_code}")
-            print(f"resp.text")
         else:
             data = json.loads(resp.text)
             val = data["value"]
