@@ -3,25 +3,25 @@ import os
 import adal
 from datetime import datetime
 import json
-import config
+from auth import config
+
 
 class KeyManager:
-    def __init__(self, key_file=config.PKEY_FILE, client_id=config.CLIENT_ID, tenant_id=config.TENANT_ID, 
-            kv_uri=config.KV_URI, thumbprint=config.THUMBPRINT):
+    KV_RESOURCE_URI = "https://vault.azure.net"
+    AUTH_URI = "https://login.microsoftonline.com"
+    API_VERSION = "7.0"
+
+    def __init__(self, config=config.KMConfig):
         """KeyManager handles getting keys from keyvault"""
-        #set initial expiry to epoch, if a key is requested it will force a token refresh
+        self._config = config
         self._token_expiry = datetime(1970, 1, 1, 0, 0)
-        self._auth_context = adal.AuthenticationContext(f"{config.AUTH_URI}/{tenant_id}")
+        self._auth_context = adal.AuthenticationContext(f"{self.AUTH_URI}/{self._config['TENANT_ID']}")
         self._oauth_token = None
-        self._thumbprint = thumbprint
-        self._client_id = client_id
-        self._kv_uri = kv_uri
-        self._key_file = key_file
         self._key = self.get_private_key()
 
     def get_private_key(self):
         """ read the private key from the supplied key file """
-        with open(self._key_file , 'r') as pem_file:
+        with open(self._config['PKEY_FILE'] , 'r') as pem_file:
             private_pem = pem_file.read()
         return private_pem
 
@@ -29,10 +29,10 @@ class KeyManager:
         """refresh the oauth token"""
         try:
             token = self._auth_context.acquire_token_with_client_certificate(
-                config.KV_RESOURCE_URI,
-                self._client_id,
+                self.KV_RESOURCE_URI,
+                self._config['CLIENT_ID'],
                 self._key,
-                self._thumbprint
+                self._config['THUMBPRINT']
             )
 
             #strip microseconds from expires on
@@ -61,14 +61,16 @@ class KeyManager:
             "Authorization" : f"Bearer {self._oauth_token}"
         }
 
-        uri = f'{self._kv_uri}/secrets/{secret_name}/'
-        query_params = f'?api-version={config.API_VERSION}'
+        uri = f'{self._config["KV_URI"]}/secrets/{secret_name}/'
+        query_params = f'?api-version={self.API_VERSION}'
 
         resp = requests.get(f'{uri}{query_params}', headers=headers)
 
         if(resp.status_code != 200):
             print("Error getting secret")
             print(f"Server returned status code: {resp.status_code}")
+            if resp.status_code == 400:
+                print("Check key vault URI or secret name")
         else:
             data = json.loads(resp.text)
             val = data["value"]
