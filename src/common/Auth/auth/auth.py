@@ -6,8 +6,8 @@ import json
 import config
 
 class KeyManager:
-    def __init__(self, client_id=config.CLIENT_ID, tenant_id=config.TENANT_ID, 
-            kv_uri=config.KV_URI, key_file=config.PKEY_FILE, thumbprint=config.THUMBPRINT):
+    def __init__(self, key_file=config.PKEY_FILE, client_id=config.CLIENT_ID, tenant_id=config.TENANT_ID, 
+            kv_uri=config.KV_URI, thumbprint=config.THUMBPRINT):
         """KeyManager handles getting keys from keyvault"""
         #set initial expiry to epoch, if a key is requested it will force a token refresh
         self._token_expiry = datetime(1970, 1, 1, 0, 0)
