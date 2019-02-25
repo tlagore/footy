@@ -5,7 +5,9 @@ Any of the KeyManagers expects a config dicctionary with the following parameter
 use get_secret(secret_name) to get the secret from key vault
 
 MSIKeyManager uses MSI - currently does not work locally or in prod but will when kubernetes pods have MSI
+
 CertKeyManager - requires CLIENT_ID, TENANT_ID, THUMBPRINT, KV_URI, PKEY_FILE
+
 AppKeyManager requires APP_SECRET, CLIENT_ID, TENANT_ID, KV_URI
 
 ```
