@@ -4,7 +4,7 @@ setup(
     name='DBManager',
     version='0.1dev',
     packages=['db_manager',],
-    install_requires=['../Auth'],
+    install_requires=['../FootyAuth'],
     license='',
     long_description=open('README').read()
 )
