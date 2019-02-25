@@ -3,14 +3,47 @@ import os
 import adal
 from datetime import datetime
 import json
-from auth import config
+from footy_auth import config
+from enum import Enum
+from azure.keyvault import KeyVaultClient, KeyVaultAuthentication, KeyVaultId
+from azure.common.credentials import ServicePrincipalCredentials
 
 
-class KeyManager:
+class MSIKeyManager:
+    """
+        managed service identity, "logged in user" has access - currently not working locally
+        Will work on kubernetes pods when MSI for kubernetes pods has been released
+    """
+    KV_RESOURCE_URI = "https://vault.azure.net"
+
+    def __init__(self, config=config.KMConfig):
+        """sumary_line"""
+        self._config = config
+        self._credentials = MSIAuthentication(
+            resource=self.KV_RESOURCE_URI
+        )
+
+        self.key_vault_client = KeyVaultClient(
+            self.credentials
+        )
+
+    def get_secret(self, secretName, secretVersion=""):
+        """ get msi secret. leave secretVersion = "" or None for latest secret version """
+        secret = key_vault_client.get_secret(
+            self._config["KV_URI"],
+            secretName,      
+            secretVersion # leave empty for latest version
+        )
+
+        return secret
+        
+class CertKeyManager:
+    """user cert auth - set PKEY_FILE in auth.config to location of .pem private keyy_line"""
+
     KV_RESOURCE_URI = "https://vault.azure.net"
     AUTH_URI = "https://login.microsoftonline.com"
     API_VERSION = "7.0"
-
+    
     def __init__(self, config=config.KMConfig):
         """KeyManager handles getting keys from keyvault"""
         self._config = config
@@ -77,38 +110,28 @@ class KeyManager:
 
         return val
 
-## this works too, but requires us to have the secret. We have this stored in keyvault as well, could
-## be a different way to do it instead of using oauth tokens. Store the secret as an environment variable
-## for example
-# def auth_callback(server, resource, scope):
-#     credentials = ServicePrincipalCredentials(
-#         client_id = '<client_id>',
-#         secret = '<secret>',
-#         tenant = '<tenant_id>',
-#         resource = 'https://vault.azure.net'
-#     )
+class AppKeyManager:
+    """user app secret - secret is set to FOOTY_APP_SECRET environment variable. DO NOT COMMIT SECRET"""
+    KV_RESOURCE_URI = "https://vault.azure.net"
 
-#     token = credentials.token
-#     return token['token_type'], token['access_token']
+    def __init__(self, config=config.KMConfig):
+        """sumary_line"""
+        self._config = config
 
-# client = KeyVaultClient(KeyVaultAuthentication(auth_callback))
+        def __auth_callback(server, resource, scope):
+            credentials = ServicePrincipalCredentials(
+                client_id = self._config['CLIENT_ID'],
+                secret = self._config['APP_SECRET'],
+                tenant = self._config['TENANT_ID'],
+                resource = self.KV_RESOURCE_URI
+            )
 
-# secret_bundle = client.get_secret('<kvuri>', '<secret>', KeyVaultId.version_none)
+            token = credentials.token
+            return token['token_type'], token['access_token']
 
+        self._client = KeyVaultClient(KeyVaultAuthentication(__auth_callback))
+    
 
-##with MSI, should work on instances
-# credentials = MSIAuthentication(
-#     resource='https://vault.azure.net'
-# )
-
-# key_vault_client = KeyVaultClient(
-#     credentials
-# )
-
-# key_vault_uri = os.environ.get("<kv_uri>")
-
-# secret = key_vault_client.get_secret(
-#     key_vault_uri,  # Your KeyVault URL
-#     "<secret_name>",      
-#     "<secret_version>" # leave empty for latest version
-# )
+    def get_secret(self, secret, version=KeyVaultId.version_none):
+        secret_bundle = self._client.get_secret(self._config["KV_URI"], secret, version)
+        return secret_bundle.value
