@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<body>
+    <h1>Hello, {{ user.username }}!</h1>
+    {% if watched_players %}
+        <table>
+            <thead>
+                <th>name</th>
+                <th>position</th>
+                <th>age</th>
+                <th>height</th>
+                <th>weight</th>
+                <th>nationality</th>
+                <th>appearances</th>
+                <th>subs</th>
+                <th>assists</th>
+                <th>shots</th>
+                <th>fouls_committed</th>
+                <th>fouls_suffered</th>
+                <th>yellow_cards</th>
+                <th>red_cards</th>
+            </thead>
+        {% for player in watched_players %}
+        <tr>
+            <td>{{player.name}}</td>
+            <td>{{player.position}}</td>
+            <td>{{player.age}}</td>
+            <td>{{player.height}}</td>
+            <td>{{player.weight}}</td>
+            <td>{{player.nationality}}</td>
+            <td>{{player.appearances}}</td>
+            <td>{{player.subs}}</td>
+            <td>{{player.assists}}</td>
+            <td>{{player.shots}}</td>
+            <td>{{player.fouls_committed}}</td>
+            <td>{{player.fouls_suffered}}</td>
+            <td>{{player.yellow_cards}}</td>
+            <td>{{player.red_cards}}</td>
+        </tr>
+        {% endfor %}
+        </table>
+    {% endif %}
+</body>
+{% endblock %}

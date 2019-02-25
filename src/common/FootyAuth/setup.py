@@ -1,4 +1,4 @@
-from distutils.core import setup
+from setuptools import setup
 
 setup(
     name='Auth',
@@ -6,5 +6,5 @@ setup(
     packages=['footy_auth',],
     install_requires=['adal==1.2.1', 'azure-keyvault==1.1.0'],
     license='',
-    long_description=open('README').read()
+    long_description=open('README.md').read()
 )
